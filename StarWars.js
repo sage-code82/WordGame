@@ -10,7 +10,7 @@ const words = [
   "CASSIAN",
   "SABINE",
   "THRAWN",
-  "ERSO",
+  "ZUCKUSS",
   "SCARIF",
   "BOSSK",
   "DENGAR",
@@ -39,7 +39,7 @@ function startGame() {
 
   updateWordDisplay();
 
-  updateStarWarsPicture();
+  updateDeathStarGraphic();
 
   const lettersContainer = document.querySelector(".letters");
   while (lettersContainer.firstChild) {
@@ -56,5 +56,63 @@ function startGame() {
     lettersContainer.appendChild(button);
   }
 
-  // Clear any previous win/lose message
+  const messageContainer = document.querySelector(".message");
+  messageContainer.innerText = "";
 }
+
+function updateWordDisplay() {
+  const wordContainer = document.querySelector(".word");
+  wordContainer.innerText = guessedLetters.join("");
+}
+
+function handleGuess(letter) {
+  if (guessedLetters.includes(letter)) {
+    return;
+  }
+
+  let correctGuess = false;
+  wordToGuess.split("").forEach((char, index) => {
+    if (char === letter) {
+      guessedLetters[index] = letter;
+      correctGuess = true;
+    }
+  });
+
+  if (!correctGuess) {
+    wrongGuesses++;
+    updateDeathStarGraphic();
+  }
+
+  updateWordDisplay();
+  checkWinOrLose();
+}
+
+function updateDeathStarGraphic() {
+  const deathStarContainer = document.querySelector(".DeathStar");
+  deathStarContainer.innerHTML = `<img src="images/DeathStar${imageCount}.png" alt="DeathStar ${imageCount}">`;
+  imageCount++;
+}
+
+function checkWinOrLose() {
+  if (guessedLetters.join("") === wordToGuess) {
+    const messageContainer = document.querySelector(".message");
+    messageContainer.innerText = "You win!";
+    const letterButtons = document.querySelectorAll(".letters button");
+    letterButtons.forEach((button) => {
+      button.disabled = true;
+      button.removeEventListener("click", handleGuess);
+    });
+  } else if (wrongGuesses >= maxWrongGuesses) {
+    const messageContainer = document.querySelector(".message");
+    messageContainer.innerText = `You lose! The word was "${wordToGuess}".`;
+    const deathStarContainer = document.querySelector(".DeathStar");
+    deathStarContainer.innerHTML = `<img src="images/gameover.png" alt="gameover">`;
+    const letterButtons = document.querySelectorAll(".letters button");
+    letterButtons.forEach((button) => {
+      button.disabled = true;
+      button.removeEventListener("click", handleGuess);
+    });
+  }
+}
+
+window.addEventListener("load", startGame);
